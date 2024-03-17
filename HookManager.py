@@ -203,13 +203,14 @@ class KeyboardEvent(HookEvent):
   @ivar Ascii: ASCII value, if one exists
   @type Ascii: string
   '''
-  def __init__(self, msg, vk_code, scan_code, ascii, flags, time, hwnd, window_name):
+  def __init__(self, msg, vk_code, scan_code, ascii, flags, time, hwnd, window_name, modifiers):
     '''Initializes an instances of the class.'''
     HookEvent.__init__(self, msg, time, hwnd, window_name)
     self.KeyID = vk_code
     self.ScanCode = scan_code
     self.Ascii = ascii
     self.flags = flags
+    self.modifiers = modifiers
 
   def GetKey(self):
     '''
@@ -246,11 +247,16 @@ class KeyboardEvent(HookEvent):
     '''
     return self.flags & 0x80
 
+  def mod(self):
+    return self.modifiers
+
   Key = property(fget=GetKey)
   Extended = property(fget=IsExtended)
   Injected = property(fget=IsInjected)
   Alt = property(fget=IsAlt)
   Transition = property(fget=IsTransition)
+  Mod = property(fget=mod)
+  
 
 class HookManager(object):
   '''
@@ -326,7 +332,7 @@ class HookManager(object):
     else:
       return True
 
-  def KeyboardSwitch(self, msg, vk_code, scan_code, ascii, flags, time, hwnd, win_name):
+  def KeyboardSwitch(self, msg, vk_code, scan_code, ascii, flags, time, hwnd, win_name, mod):
     '''
     Passes a keyboard event on to the appropriate handler if one is registered.
 
@@ -345,7 +351,7 @@ class HookManager(object):
     @param hwnd: Window handle of the foreground window at the time of the event
     @type hwnd: integer
     '''
-    event = KeyboardEvent(msg, vk_code, scan_code, ascii, flags, time, hwnd, win_name)
+    event = KeyboardEvent(msg, vk_code, scan_code, ascii, flags, time, hwnd, win_name, mod)
     func = self.keyboard_funcs.get(msg)
     if func:
       return func(event)

@@ -76,9 +76,31 @@
     // convert to an ASCII code if possible
     ascii = ConvertToASCII(kbd->vkCode, kbd->scanCode);
 
+    UpdateKeyState(kbd->vkCode, wParam);
+
+    int shift = (key_state[VK_SHIFT] & 0x80) ? 1 : 0;
+    int ctrl = (key_state[VK_CONTROL] & 0x80) ? 1 : 0;
+
+    int caps = GetKeyState(VK_CAPITAL) & 0x0001;
+
+    int alt = GetKeyState(VK_MENU) & 0x0001;
+    alt = (kbd->flags & LLKHF_ALTDOWN) ? 1 : 0;
+    int super = GetKeyState(VK_LWIN) & 0x0001;
+    super = (kbd->flags & LLKHF_EXTENDED) ? 1 : 0;
+
+    int meta = GetKeyState(VK_RWIN) & 0x0001;
+
+    PyObject* list = PyList_New(0);
+    PyList_Append(list, PyInt_FromLong(shift));
+    PyList_Append(list, PyInt_FromLong(caps));
+    PyList_Append(list, PyInt_FromLong(ctrl));
+    PyList_Append(list, PyInt_FromLong(alt));
+    PyList_Append(list, PyInt_FromLong(super));
+    PyList_Append(list, PyInt_FromLong(meta));
+
     // pass the message on to the Python function
-    arglist = Py_BuildValue("(iiiiiiiu)", wParam, kbd->vkCode, kbd->scanCode, ascii,
-                            kbd->flags, kbd->time, hwnd, win_name);
+    arglist = Py_BuildValue("(iiiiiiiuO)", wParam, kbd->vkCode, kbd->scanCode, ascii,
+                            kbd->flags, kbd->time, hwnd, win_name, list);
 
     r = PyObject_CallObject(callback_funcs[WH_KEYBOARD_LL], arglist);
 

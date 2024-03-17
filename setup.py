@@ -42,6 +42,10 @@ setup(
 
     packages = ['PyHook3'],
     package_dir = {'PyHook3' : ""},
-    ext_modules = [Extension('PyHook3._cpyHook', ['cpyHook.i'], libraries=['user32'])],
+    ext_modules = [Extension('PyHook3._cpyHook', 
+                             ['cpyHook.i'], 
+                             include_dirs=['C:/Python311/include'],
+                             librariy_dirs=['C:/Python311/libs'],
+                             libraries=['user32','python3','python311'])],
     data_files=[('Lib/site-packages/PyHook3', ['LICENSE.rst', 'README.rst', 'CHANGELOG.txt'])]
 )
